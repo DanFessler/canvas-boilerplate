@@ -104,6 +104,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
+var TAU = Math.PI * 2;
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -134,17 +135,27 @@ function Object(x, y, radius, color) {
     this.y = y;
     this.radius = radius;
     this.color = color;
+
+    var angle = Math.random() * TAU;
+    var speed = Math.random() * 2;
+    this.vy = Math.sin(angle) * speed;
+    this.vx = Math.cos(angle) * speed;
 }
 
 Object.prototype.draw = function () {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    c.fillStyle = this.color;
-    c.fill();
+    c.strokeStyle = this.color;
+    var angle = Math.tan(this.y / this.x);
+    c.moveTo(this.x + Math.cos(angle) * this.radius, this.y + Math.sin(angle) * this.radius);
+    c.lineTo(this.x, this.y);
+    c.stroke();
     c.closePath();
 };
 
 Object.prototype.update = function () {
+    this.x += this.vx;
+    this.y += this.vy;
     this.draw();
 };
 
@@ -154,7 +165,7 @@ function init() {
     objects = [];
 
     for (var i = 0; i < 400; i++) {
-        // objects.push()
+        objects.push(new Object(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'red'));
     }
 }
 
@@ -163,10 +174,9 @@ function animate() {
     requestAnimationFrame(animate);
     c.clearRect(0, 0, canvas.width, canvas.height);
 
-    c.fillText('HTML CANVAS BOILERPLATE', mouse.x, mouse.y);
-    // objects.forEach(object => {
-    //  object.update()
-    // })
+    objects.forEach(function (object) {
+        object.update();
+    });
 }
 
 init();
